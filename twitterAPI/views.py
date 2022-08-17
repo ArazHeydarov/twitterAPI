@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
 
@@ -14,7 +14,7 @@ def signin(request):
         return render(request, 'signin.html')
 
     if request.method == 'POST':
-        username = request.POST.get('email')
+        username = request.POST.get('username')
         password = request.POST.get('password')
         if username and password:
             user = authenticate(request, username=username, password=password)
@@ -24,3 +24,8 @@ def signin(request):
                 return render(request, 'signin.html', {'warning_message': 'Credentials are wrong'})
 
         return redirect(to='index')
+
+
+def sign_out(request):
+    logout(request)
+    return redirect(to='index')
