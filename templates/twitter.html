@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if authorization_url %}
+        <h1>You don't have Twitter account registered</h1>
+        <h2>Please proceed with this <a href="{{ authorization_url }}">link </a> to authorize application</h2>
+    {% endif %}
+
+{% endblock content %}

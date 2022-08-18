@@ -24,5 +24,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.index, name='index'),
     path('signin/', views.signin, name='signin'),
-    path('signout/', views.sign_out, name='sign_out')
+    path('signout/', views.sign_out, name='sign_out'),
+    path('twitter_signin/', views.twitter, name='twitter_signin'),
+    path('verify/', views.verify, name='twitter_verify')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
