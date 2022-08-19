@@ -12,6 +12,8 @@ class TwitterUser(models.Model):
     resource_owner_secret = models.CharField(max_length=256, null=False)
     access_token = models.CharField(max_length=256)
     access_token_secret = models.CharField(max_length=256)
+    twitter_user_id = models.IntegerField(null=True)
+    twitter_user_name = models.CharField(max_length=256)
 
     def __str__(self):
         return self.user.username
