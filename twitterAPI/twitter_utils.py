@@ -2,7 +2,7 @@ import os
 
 from requests_oauthlib import OAuth1Session
 
-from .models import TwitterUser
+from .models import TwitterUser, TwitterFollower
 
 
 def check_if_twitter_user_exist(user):
@@ -86,3 +86,60 @@ def remove_follower(requester, ids_to_remove):
         unblock_url = f"https://api.twitter.com/2/users/{requester.twitter_user_id}/blocking/{follower_id}"
         response = oauth.delete(unblock_url)
 
+
+def get_followers(requester):
+    oauth = get_oauth_session(requester)
+
+    request_url = f"https://api.twitter.com/2/users/{requester.twitter_user_id}/followers"
+    response = oauth.get(request_url)
+    response = response.json()
+    followers = response['data']
+    return followers
+
+
+def get_extra_user_info(requester, users):
+    oauth = get_oauth_session(requester)
+    fields = "profile_image_url,protected"
+    params = {"user.fields": fields}
+    extra_users_info = users.copy()
+    for user in extra_users_info:
+        user_id = user['id']
+
+        # getting profile picture
+        profile_url = f"https://api.twitter.com/2/users/{user_id}"
+        profile_response = oauth.get(url=profile_url, params=params)
+        if profile_response.status_code == 200:
+            profile_json_response = profile_response.json()
+            profile_user_data = profile_json_response['data']
+            user['pp_url'] = profile_user_data['profile_image_url']
+            user['protected'] = profile_user_data['protected']
+
+        if user.get('protected'):
+            continue
+        # getting last tweet
+        last_tweet_params = {'exclude': 'replies', 'max_results': 5,
+                             'tweet.fields': 'created_at'}
+        last_tweet_url = f"https://api.twitter.com/2/users/{user_id}/tweets"
+        last_tweet_response = oauth.get(url=last_tweet_url, params=last_tweet_params)
+        if last_tweet_response.status_code == 200:
+            last_tweet_json_response = last_tweet_response.json()
+            last_tweet_data = last_tweet_json_response.get('data')
+            if last_tweet_data:
+                last_tweet_data = last_tweet_data[0]
+                user['last_tweet_dt'] = last_tweet_data.get('created_at')
+            else:
+                user['last_tweet_dt'] = None
+
+        # getting last like
+        last_like_params = {'max_results': 10, 'tweet.fields': 'created_at'}
+        last_like_url = f'https://api.twitter.com/2/users/{user_id}/liked_tweets'
+        last_like_response = oauth.get(url=last_like_url, params=last_like_params)
+        if last_like_response.status_code == 200:
+            last_like_json_response = last_like_response.json()
+            last_like_data = last_like_json_response.get('data')
+            if last_like_data:
+                last_like_data = last_like_data[0]
+                user['last_like_dt'] = last_like_data['created_at']
+            else:
+                user['last_like_dt'] = None
+    return extra_users_info

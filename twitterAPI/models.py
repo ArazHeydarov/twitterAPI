@@ -17,3 +17,20 @@ class TwitterUser(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class TwitterFollower(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    twitter_id = models.CharField(max_length=256)
+    name = models.CharField(max_length=256)
+    username = models.CharField(max_length=256)
+    pp_url = models.CharField(max_length=512)
+    protected = models.BooleanField()
+    last_like_dt = models.DateTimeField(null=True)
+    last_tweet_dt = models.DateTimeField(null=True)
+    currently_following = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
