@@ -27,5 +27,6 @@ urlpatterns = [
     path('signout/', views.sign_out, name='sign_out'),
     path('twitter_signin/', views.twitter, name='twitter_signin'),
     path('verify/', views.verify, name='twitter_verify'),
-    path('twitter_followers/', views.twitter_followers, name='twitter_followers')
+    path('twitter_followers/', views.twitter_followers, name='twitter_followers'),
+    path('twitter_followers/update', views.update_twitter_followers, name='twitter_followers_update')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

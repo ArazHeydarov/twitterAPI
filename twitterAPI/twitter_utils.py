@@ -87,7 +87,7 @@ def remove_follower(requester, ids_to_remove):
         response = oauth.delete(unblock_url)
 
 
-def get_followers(requester):
+def get_followers(requester: TwitterUser):
     oauth = get_oauth_session(requester)
 
     request_url = f"https://api.twitter.com/2/users/{requester.twitter_user_id}/followers"
@@ -103,7 +103,9 @@ def get_extra_user_info(requester, users):
     params = {"user.fields": fields}
     extra_users_info = users.copy()
     for user in extra_users_info:
-        user_id = user['id']
+        user['twitter_id'] = user['id']
+        del user['id']
+        user_id = user['twitter_id']
 
         # getting profile picture
         profile_url = f"https://api.twitter.com/2/users/{user_id}"
