@@ -13,19 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from twitterAPI import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/', include('authentication.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+
+    path('', include('authentication.urls')),
     path('', views.index, name='index'),
-    path('signin/', views.signin, name='signin'),
-    path('signout/', views.sign_out, name='sign_out'),
     path('twitter_signin/', views.twitter, name='twitter_signin'),
     path('verify/', views.verify, name='twitter_verify'),
     path('twitter_followers/', views.twitter_followers, name='twitter_followers'),
