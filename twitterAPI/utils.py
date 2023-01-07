@@ -1,38 +1,12 @@
 import os
-
-from requests_oauthlib import OAuth1Session
-
 from .models import TwitterUser, TwitterFollower
 
-
-def check_if_twitter_user_exist(user):
-    try:
-        twitter_user = user.twitteruser
-        if not twitter_user.access_token or not twitter_user.access_token_secret:
-            twitter_user.delete()
-            twitter_user = None
-    except TwitterUser.DoesNotExist:
-        twitter_user = None
-    return twitter_user
+CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
+CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
+REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
+BASE_OAUTH_URL = "https://api.twitter.com/oauth/authorize"
 
 
-def get_authorization_url():
-    consumer_key = os.environ.get("CONSUMER_KEY")
-    consumer_secret = os.environ.get("CONSUMER_SECRET")
-
-    # Get request token
-    request_token_url = "https://api.twitter.com/oauth/request_token"
-    oauth = OAuth1Session(consumer_key, client_secret=consumer_secret)
-
-    fetch_response = oauth.fetch_request_token(request_token_url)
-    resource_owner_key = fetch_response.get("oauth_token")
-    resource_owner_secret = fetch_response.get("oauth_token_secret")
-
-    # Get authorization
-    base_authorization_url = "https://api.twitter.com/oauth/authorize"
-    authorization_url = oauth.authorization_url(base_authorization_url)
-
-    return authorization_url, resource_owner_key, resource_owner_secret
 
 
 def get_oauth_session(twitter_user):

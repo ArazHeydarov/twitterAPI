@@ -10,30 +10,36 @@ from requests_oauthlib import OAuth1Session
 
 from .models import TwitterUser, TwitterFollower
 
-import twitterAPI.twitter_utils as tu
+import twitterAPI.utils as tu
+from twitterAPI.repo import TwitterUserRepo
+from twitterAPI.services import TwitterAuthService
 
 
-def twitter_connection(user):
-    return hasattr(user, 'twitteruser') and user.twitteruser.access_token_secret
+@login_required(login_url='/signin')
+@user_passes_test(TwitterUserRepo.check_oauth_authorization, login_url='twitter_auth')
+def dashboard(request):
+    user = request.user
+    repo = TwitterUserRepo(user)
+    oauth_credentials = repo.twitter_user
+
+    if not oauth_credentials:
+        return redirect(to='twitter_auth')
+    return HttpResponse('Dashboard')
 
 
-@login_required
-def twitter(request):
-    twitter_user = tu.check_if_twitter_user_exist(request.user)
-
-    if not twitter_user:
-        authorization_url, resource_owner_key, resource_owner_secret = tu.get_authorization_url()
-
-        t = TwitterUser(user=request.user, resource_owner_key=resource_owner_key,
-                        resource_owner_secret=resource_owner_secret)
-        t.save()
-        return render(request, 'twitter.html', {'authorization_url': authorization_url})
-    return redirect('twitter_followers')
+@login_required(login_url='/signin')
+def twitter_auth(request):
+    user = request.user
+    if TwitterUserRepo.check_oauth_authorization(user):
+        return redirect('dashboard')
+    auth_service = TwitterAuthService(user)
+    twitter_auth_url = auth_service.authorization_url
+    return render(request, 'twitter.html', {'authorization_url': twitter_auth_url})
 
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect(to=twitter)
+        return redirect(to='dashboard')
     return render(request, 'index.html')
 
 
@@ -69,7 +75,7 @@ def verify(request):
 
 
 @login_required
-@user_passes_test(twitter_connection, redirect_field_name='twitter_signin')
+@user_passes_test(TwitterUserRepo.check_oauth_authorization, redirect_field_name='twitter_auth')
 def twitter_followers(request):
     if request.method == 'POST':
         requester = request.user.twitteruser
@@ -87,7 +93,7 @@ def twitter_followers(request):
 
 @require_http_methods(['GET'])
 @login_required
-@user_passes_test(twitter_connection, redirect_field_name='twitter_signin')
+@user_passes_test(TwitterUserRepo.check_oauth_authorization, redirect_field_name='twitter_auth')
 async def update_twitter_followers(request):
     asyncio.create_task(update(request))
     return redirect('twitter_followers')

@@ -23,7 +23,8 @@ urlpatterns = [
 
     path('', include('authentication.urls')),
     path('', views.index, name='index'),
-    path('twitter_signin/', views.twitter, name='twitter_signin'),
+    path('dashboard', views.dashboard, name='dashboard'),
+    path('twitter-auth/', views.twitter_auth, name='twitter_auth'),
     path('verify/', views.verify, name='twitter_verify'),
     path('twitter_followers/', views.twitter_followers, name='twitter_followers'),
     path('twitter_followers/update', views.update_twitter_followers, name='twitter_followers_update')
