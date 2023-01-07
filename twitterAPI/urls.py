@@ -21,6 +21,7 @@ from twitterAPI import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('auth/', include('authentication.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.index, name='index'),
     path('signin/', views.signin, name='signin'),

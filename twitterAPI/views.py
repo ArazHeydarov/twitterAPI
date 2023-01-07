@@ -40,7 +40,7 @@ def index(request):
 
 def signin(request):
     if request.user.is_authenticated:
-        return redirect(to='index')
+        return redirect(to='index') # direct to twitter directly
 
     if request.method == 'GET':
         return render(request, 'signin.html')
