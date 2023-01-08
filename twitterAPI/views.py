@@ -41,35 +41,16 @@ def index(request):
     return render(request, 'index.html')
 
 
-@login_required
+@login_required(login_url='/signin')
 def verify(request):
-    consumer_key = os.environ.get("CONSUMER_KEY")
-    consumer_secret = os.environ.get("CONSUMER_SECRET")
+    user = request.user
+    auth_service = TwitterAuthService(user)
+    if not auth_service.validate_pending_verification():
+        return redirect(to='twitter_auth')
 
-    twitter_user = request.user.twitteruser
-    resource_owner_key = twitter_user.resource_owner_key
-    resource_owner_secret = twitter_user.resource_owner_secret
-
-    verifier = request.GET.get('oauth_verifier')
-    # Get the access token
-    access_token_url = "https://api.twitter.com/oauth/access_token"
-    oauth = OAuth1Session(
-        consumer_key,
-        client_secret=consumer_secret,
-        resource_owner_key=resource_owner_key,
-        resource_owner_secret=resource_owner_secret,
-        verifier=verifier,
-    )
-    oauth_tokens = oauth.fetch_access_token(access_token_url)
-
-    access_token = oauth_tokens["oauth_token"]
-    access_token_secret = oauth_tokens["oauth_token_secret"]
-
-    twitter_user.access_token = access_token
-    twitter_user.access_token_secret = access_token_secret
-    twitter_user.save()
-
-    return redirect('twitter_signin')
+    oauth_verifier = request.GET.get('oauth_verifier')
+    auth_service.verify_oauth_token(oauth_verifier)
+    return redirect('dashboard')
 
 
 @login_required

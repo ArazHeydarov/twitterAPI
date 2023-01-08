@@ -1,4 +1,4 @@
-from twitterAPI.utils import CONSUMER_KEY, CONSUMER_SECRET, REQUEST_TOKEN_URL, BASE_OAUTH_URL
+from twitterAPI.utils import CONSUMER_KEY, CONSUMER_SECRET, REQUEST_TOKEN_URL, BASE_OAUTH_URL, ACCESS_TOKEN_URL
 
 from requests_oauthlib import OAuth1Session
 
@@ -19,4 +19,18 @@ class TwitterClient(object):
 
         return authorization_url, resource_owner_key, resource_owner_secret
 
+    @staticmethod
+    def get_authorization_access_params(resource_owner_key, resource_owner_secret, verifier):
+        oauth = OAuth1Session(
+            CONSUMER_KEY,
+            client_secret=CONSUMER_SECRET,
+            resource_owner_key=resource_owner_key,
+            resource_owner_secret=resource_owner_secret,
+            verifier=verifier,
+        )
+        oauth_tokens = oauth.fetch_access_token(ACCESS_TOKEN_URL)
 
+        access_token = oauth_tokens.get("oauth_token")
+        access_token_secret = oauth_tokens.get("oauth_token_secret")
+
+        return access_token, access_token_secret

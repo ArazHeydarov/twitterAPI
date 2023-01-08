@@ -19,8 +19,7 @@ class TwitterUserRepo:
             return None
         return twitter_user
 
-    def update_or_create(self, resource_owner_key, resource_owner_secret):
-        defaults = {'resource_owner_key': resource_owner_key, 'resource_owner_secret': resource_owner_secret}
+    def update_or_create(self, **kwargs):
         twitter_user, created = TwitterUser.objects.update_or_create(user=self.user,
-                                                                     defaults=defaults)
+                                                                     defaults=kwargs)
         return twitter_user
