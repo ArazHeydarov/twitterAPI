@@ -7,21 +7,30 @@ class TwitterAuthService:
         self.user = user
         self.twitter_client = TwitterClient(user)
         self.twitter_user_repo = TwitterUserRepo(user)
-        self._authorization_url = None
-        self._resource_owner_key = None
-        self._resource_owner_secret = None
+
+    def get_authorization_url(self):
+        authorization_url, resource_owner_key, resource_owner_secret = self.twitter_client.get_authorization_params()
+        self.save_params(resource_owner_key, resource_owner_secret)
+        return authorization_url
 
     def _get_authorization_params(self):
         self._authorization_url, self._resource_owner_key, self._resource_owner_secret = \
             self.twitter_client.get_authorization_params()
 
-    def _bind_user_to_twitter_user(self):
-        self.twitter_user_repo.create(resource_owner_key=self._resource_owner_key,
-                                      resource_owner_secret=self._resource_owner_secret)
+    def save_params(self, resource_owner_key, resource_owner_secret):
+        twitter_user = self.twitter_user_repo.update_or_create(resource_owner_key, resource_owner_secret)
+        return twitter_user
 
-    @property
-    def authorization_url(self):
-        if not self._authorization_url:
-            self._get_authorization_params()
-            self._bind_user_to_twitter_user()
-        return self._authorization_url
+    def validate_oauth_authorization(self):
+        twitter_user = self.twitter_user_repo.fetch_twitter_user()
+        if twitter_user and twitter_user.access_token and twitter_user.access_token_secret:
+            return True
+        return False
+
+    def validate_pending_verification(self):
+        twitter_user = self.twitter_user_repo.fetch_twitter_user()
+        if twitter_user and twitter_user.resource_owner_key and twitter_user.resource_owner_secret:
+            return True
+        return False
+
+

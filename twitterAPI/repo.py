@@ -9,24 +9,18 @@ class TwitterUserRepo:
     @property
     def twitter_user(self):
         if self._twitter_user is None:
-            self._twitter_user = self.check_oauth_authorization(self.user)
+            self._twitter_user = self.fetch_twitter_user()
         return self._twitter_user
 
-    @staticmethod
-    def check_oauth_authorization(user):
+    def fetch_twitter_user(self):
         try:
-            twitter_user = TwitterUser.objects.get(user=user)
+            twitter_user = TwitterUser.objects.get(user=self.user)
         except TwitterUser.DoesNotExist:
             return None
-
-        if not twitter_user.access_token or not twitter_user.access_token_secret:
-            twitter_user.delete()
-            twitter_user = None
         return twitter_user
 
-    def create(self, resource_owner_key, resource_owner_secret):
-        twitter_user = TwitterUser(user=self.user, resource_owner_key=resource_owner_key,
-                                   resource_owner_secret=resource_owner_secret)
-        twitter_user.save()
+    def update_or_create(self, resource_owner_key, resource_owner_secret):
+        defaults = {'resource_owner_key': resource_owner_key, 'resource_owner_secret': resource_owner_secret}
+        twitter_user, created = TwitterUser.objects.update_or_create(user=self.user,
+                                                                     defaults=defaults)
         return twitter_user
-

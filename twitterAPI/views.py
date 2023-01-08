@@ -16,13 +16,11 @@ from twitterAPI.services import TwitterAuthService
 
 
 @login_required(login_url='/signin')
-@user_passes_test(TwitterUserRepo.check_oauth_authorization, login_url='twitter_auth')
 def dashboard(request):
     user = request.user
-    repo = TwitterUserRepo(user)
-    oauth_credentials = repo.twitter_user
+    auth_service = TwitterAuthService(user)
 
-    if not oauth_credentials:
+    if not auth_service.validate_oauth_authorization():
         return redirect(to='twitter_auth')
     return HttpResponse('Dashboard')
 
@@ -30,10 +28,10 @@ def dashboard(request):
 @login_required(login_url='/signin')
 def twitter_auth(request):
     user = request.user
-    if TwitterUserRepo.check_oauth_authorization(user):
-        return redirect('dashboard')
     auth_service = TwitterAuthService(user)
-    twitter_auth_url = auth_service.authorization_url
+    if auth_service.validate_oauth_authorization():
+        return redirect('dashboard')
+    twitter_auth_url = auth_service.get_authorization_url()
     return render(request, 'twitter.html', {'authorization_url': twitter_auth_url})
 
 
@@ -75,8 +73,12 @@ def verify(request):
 
 
 @login_required
-@user_passes_test(TwitterUserRepo.check_oauth_authorization, redirect_field_name='twitter_auth')
 def twitter_followers(request):
+    user = request.user
+    auth_service = TwitterAuthService(user)
+
+    if not auth_service.validate_oauth_authorization():
+        return redirect(to='twitter_auth')
     if request.method == 'POST':
         requester = request.user.twitteruser
         ids_to_remove = tu.get_follower_ids_to_remove(request.POST)
@@ -93,7 +95,6 @@ def twitter_followers(request):
 
 @require_http_methods(['GET'])
 @login_required
-@user_passes_test(TwitterUserRepo.check_oauth_authorization, redirect_field_name='twitter_auth')
 async def update_twitter_followers(request):
     asyncio.create_task(update(request))
     return redirect('twitter_followers')

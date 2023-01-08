@@ -5,7 +5,7 @@ CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
 CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
 REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
 BASE_OAUTH_URL = "https://api.twitter.com/oauth/authorize"
-
+ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 
 
 
