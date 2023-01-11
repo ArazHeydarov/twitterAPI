@@ -1,6 +1,5 @@
 import asyncio
-import json
-import os
+
 
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
@@ -11,9 +10,8 @@ from requests_oauthlib import OAuth1Session
 from .models import TwitterUser, TwitterFollower
 
 import twitterAPI.utils as tu
-from twitterAPI.repo import TwitterUserRepo
 from twitterAPI.services import TwitterAuthService
-
+from twitterAPI.tasks import test_func
 
 @login_required(login_url='/signin')
 def dashboard(request):
@@ -36,6 +34,9 @@ def twitter_auth(request):
 
 
 def index(request):
+    test_func.delay()
+    return HttpResponse('Hello World!')
+
     if request.user.is_authenticated:
         return redirect(to='dashboard')
     return render(request, 'index.html')
