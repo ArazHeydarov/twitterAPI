@@ -52,14 +52,14 @@ class TwitterFollowerService:
         self.twitter_user_repo = TwitterUserRepo(user)
         self.twitter_user = self.twitter_user_repo.fetch_twitter_user()
         self.twitter_client = TwitterClient(self.twitter_user)
-        self.twitter_user_repo = TwitterFollowersRepo(self.twitter_user)
+        self.twitter_followers_repo = TwitterFollowersRepo(self.twitter_user)
 
     def get_followers(self):
-        return self.twitter_user_repo.fetch_followers()
+        return self.twitter_followers_repo.fetch_followers()
 
     def update_followers(self):
         followers_list = self.get_follower_list()
-        self.twitter_user_repo.add_followers(followers_list)
+        self.twitter_followers_repo.add_followers(followers_list)
         return followers_list
 
     def get_follower_list(self):
