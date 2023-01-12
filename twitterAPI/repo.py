@@ -1,4 +1,4 @@
-from twitterAPI.models import TwitterUser
+from twitterAPI.models import TwitterUser, TwitterFollower
 
 
 class TwitterUserRepo:
@@ -23,3 +23,19 @@ class TwitterUserRepo:
         twitter_user, created = TwitterUser.objects.update_or_create(user=self.user,
                                                                      defaults=kwargs)
         return twitter_user
+
+
+class TwitterFollowersRepo:
+    def __init__(self, twitter_user):
+        self.twitter_user = twitter_user
+
+    def fetch_followers(self):
+        followers = TwitterFollower.objects.filter(user=self.twitter_user)
+        return followers
+
+    def add_followers(self, followers_list):
+        for follower in followers_list:
+            TwitterFollower.objects.update_or_create(user=self.twitter_user, twitter_user_id=follower['id'],
+                                                     name=follower['name'], username=follower['username'])
+
+

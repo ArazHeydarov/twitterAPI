@@ -51,6 +51,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'twitterAPI.urls'
+LOGIN_URL = '/signin'
 
 TEMPLATES = [
     {
