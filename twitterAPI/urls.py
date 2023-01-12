@@ -26,6 +26,6 @@ urlpatterns = [
     path('dashboard', views.dashboard, name='dashboard'),
     path('twitter-auth/', views.twitter_auth, name='twitter_auth'),
     path('verify/', views.verify, name='twitter_verify'),
-    path('twitter-followers/', views.twitter_followers, name='twitter_followers'),
+    path('twitter-followers-remove/', views.remove_twitter_followers, name='twitter_followers_remove'),
     path('twitter-followers-update', views.update_twitter_followers, name='twitter_followers_update')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

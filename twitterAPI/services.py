@@ -1,6 +1,7 @@
 from twitterAPI.clients import TwitterClient
 from twitterAPI.repo import TwitterUserRepo, TwitterFollowersRepo
 from twitterAPI.models import User
+from twitterAPI.utils import process_profile_picture, get_follower_ids_to_remove
 
 
 class TwitterAuthService:
@@ -68,6 +69,7 @@ class TwitterFollowerService:
 
     def get_followers_info(self, follower: dict):
         pp_url, protected = self.twitter_client.fetch_follower_basic_info(follower['id'])
+        pp_url = process_profile_picture(pp_url)
         follower_with_info = {'twitter_user_id': follower['id'],
                               'name': follower['name'],
                               'username': follower['username'],
@@ -78,3 +80,9 @@ class TwitterFollowerService:
             follower_with_info['last_like_dt'] = self.twitter_client.fetch_follower_last_like_date(follower['id'])
             follower_with_info['last_tweet_dt'] = self.twitter_client.fetch_follower_last_tweet_date(follower['id'])
         return follower_with_info
+
+    def remove_followers(self, params: dict):
+        follower_ids_to_remove = get_follower_ids_to_remove(params)
+        for follower_id in follower_ids_to_remove:
+            self.twitter_client.remove_follower(follower_id)
+            self.twitter_followers_repo.remove_follower(follower_id)

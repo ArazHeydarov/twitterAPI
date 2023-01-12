@@ -112,3 +112,16 @@ class TwitterClient(object):
             last_like_data = data[0]
             return last_like_data['created_at']
         return None
+
+    def remove_follower(self, follower_id: str):
+        oauth = OAuth1Session(
+            CONSUMER_KEY,
+            client_secret=CONSUMER_SECRET,
+            resource_owner_key=self.twitter_user.access_token,
+            resource_owner_secret=self.twitter_user.access_token_secret,
+        )
+        block_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/blocking"
+        response = oauth.post(block_url, json={"target_user_id": f"{follower_id}"})
+        unblock_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/blocking/{follower_id}"
+        response = oauth.delete(unblock_url)
+

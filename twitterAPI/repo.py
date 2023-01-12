@@ -39,4 +39,12 @@ class TwitterFollowersRepo:
             TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
                                                      twitter_user_id=follower['twitter_user_id'])
 
+    def remove_follower(self, follower_id):
+        try:
+            twitter_follower = TwitterFollower.objects.get(user=self.twitter_user, twitter_user_id=follower_id)
+            twitter_follower.currently_following = False
+            twitter_follower.save()
+        except TwitterUser.DoesNotExist:
+            return
+
 

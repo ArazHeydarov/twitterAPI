@@ -85,16 +85,15 @@ def update_twitter_followers(request):
     return redirect('dashboard')
 
 
-async def update(request):
-    print('Bla bla bla bla')
-    request.user.twitterfollower_set.all().update(currently_following=False)
+@require_http_methods(['POST'])
+@login_required
+def remove_twitter_followers(request):
+    user = request.user
+    if not TwitterAuthService(user).validate_oauth_authorization():
+        return redirect(to='twitter_auth')
 
-    followers = tu.get_followers(requester=request.user.twitteruser)
-    followers = tu.get_extra_user_info(requester=request.user.twitteruser, users=followers)
-    for follower in followers:
-        existing_follower = request.user.twitterfollower_set.filter(twitter_id=follower['twitter_id'])
-        if existing_follower:
-            existing_follower.update(currently_following=True, **follower)
-        else:
-            tf = TwitterFollower(user=request.user, currently_following=True, **follower)
-            tf.save()
+    TwitterFollowerService(user).remove_followers(request.POST.dict())
+    return redirect('dashboard')
+
+
+

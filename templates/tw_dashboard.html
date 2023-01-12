@@ -30,12 +30,12 @@
     <tr>
     {% for follower in followers %}
         <td>
-            <img src="{{ follower.pp_url|slice:":-11" }}.jpg" width="100px" height="100px"
-                 style="vertical-align: baseline">
+            <img src="{{ follower.pp_url }}" width="100px" height="100px"
+                 style="vertical-align: baseline" alt="{{ follower.username }}">
             <label>{{ follower.name }} - {{ follower.username }}<br>
                 Last tweet: {{ follower.last_tweet_dt }} <br>
                 Last like: {{ follower.last_like_dt }} <br>
-            <input type="checkbox" name="uid_{{ follower.id }}">
+            <input type="checkbox" name="uid_{{ follower.twitter_user_id }}">
             </label>
 
         </td>
@@ -45,7 +45,9 @@
     {% endfor %}
     </tr>
     </table>
-    <label style="margin-top: 50px"><input type="submit" value="Remove followers"></label>
+    <label style="margin-top: 50px">
+        <input type="submit" value="Remove followers" formaction="{% url 'twitter_followers_remove' %}">
+    </label>
     </form>
     {% endif %}
 {% endblock content %}
