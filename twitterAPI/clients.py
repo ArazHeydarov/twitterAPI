@@ -69,3 +69,46 @@ class TwitterClient(object):
         followers = oauth.get(request_url).json().get("data")
         return followers
 
+    def fetch_follower_basic_info(self, follower_id: str):
+        oauth = OAuth1Session(
+            CONSUMER_KEY,
+            client_secret=CONSUMER_SECRET,
+            resource_owner_key=self.twitter_user.access_token,
+            resource_owner_secret=self.twitter_user.access_token_secret,
+        )
+        scope = "profile_image_url,protected"
+        params = {"user.fields": scope}
+        request_url = f"https://api.twitter.com/2/users/{follower_id}"
+        data = oauth.get(url=request_url, params=params).json().get("data")
+        return data['profile_image_url'], data['protected']
+
+    def fetch_follower_last_tweet_date(self, follower_id: str):
+        oauth = OAuth1Session(
+            CONSUMER_KEY,
+            client_secret=CONSUMER_SECRET,
+            resource_owner_key=self.twitter_user.access_token,
+            resource_owner_secret=self.twitter_user.access_token_secret,
+        )
+        params = {'exclude': 'replies', 'max_results': 5,
+                  'tweet.fields': 'created_at'}
+        request_url = f"https://api.twitter.com/2/users/{follower_id}/tweets"
+        data = oauth.get(url=request_url, params=params).json().get("data")
+        if data:
+            last_tweet_data = data[0]
+            return last_tweet_data.get('created_at')
+        return None
+
+    def fetch_follower_last_like_date(self, follower_id: str):
+        oauth = OAuth1Session(
+            CONSUMER_KEY,
+            client_secret=CONSUMER_SECRET,
+            resource_owner_key=self.twitter_user.access_token,
+            resource_owner_secret=self.twitter_user.access_token_secret,
+        )
+        params = {'max_results': 10, 'tweet.fields': 'created_at'}
+        request_url = f'https://api.twitter.com/2/users/{follower_id}/liked_tweets'
+        data = oauth.get(url=request_url, params=params).json().get("data")
+        if data:
+            last_like_data = data[0]
+            return last_like_data['created_at']
+        return None

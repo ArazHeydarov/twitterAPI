@@ -35,7 +35,8 @@ class TwitterFollowersRepo:
 
     def add_followers(self, followers_list):
         for follower in followers_list:
-            TwitterFollower.objects.update_or_create(user=self.twitter_user, twitter_user_id=follower['id'],
-                                                     name=follower['name'], username=follower['username'])
+            follower['user'] = self.twitter_user
+            TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
+                                                     twitter_user_id=follower['twitter_user_id'])
 
 

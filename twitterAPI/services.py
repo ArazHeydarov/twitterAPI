@@ -59,8 +59,22 @@ class TwitterFollowerService:
 
     def update_followers(self):
         followers_list = self.get_follower_list()
-        self.twitter_followers_repo.add_followers(followers_list)
+        followers_with_info = [self.get_followers_info(follower) for follower in followers_list]
+        self.twitter_followers_repo.add_followers(followers_with_info)
         return followers_list
 
     def get_follower_list(self):
         return self.twitter_client.fetch_followers_list()
+
+    def get_followers_info(self, follower: dict):
+        pp_url, protected = self.twitter_client.fetch_follower_basic_info(follower['id'])
+        follower_with_info = {'twitter_user_id': follower['id'],
+                              'name': follower['name'],
+                              'username': follower['username'],
+                              'pp_url': pp_url,
+                              'protected': protected}
+
+        if not follower_with_info['protected']:
+            follower_with_info['last_like_dt'] = self.twitter_client.fetch_follower_last_like_date(follower['id'])
+            follower_with_info['last_tweet_dt'] = self.twitter_client.fetch_follower_last_tweet_date(follower['id'])
+        return follower_with_info

@@ -82,7 +82,7 @@ def update_twitter_followers(request):
         return redirect(to='twitter_auth')
 
     TwitterFollowerService(user).update_followers()
-    return HttpResponse('Success')
+    return redirect('dashboard')
 
 
 async def update(request):

@@ -22,6 +22,7 @@
     <a class="btn btn-primary btn-lg" style="width: 150px; height:50px; padding-top: 15px;" href="{% url 'twitter_followers_update' %}" role="button">
         <p style="text-align: center">Update followers</p>
     </a>
+    <br />
     {% if followers %}
     <form method="post">
     {% csrf_token %}
