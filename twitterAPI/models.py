@@ -21,7 +21,7 @@ class TwitterUser(models.Model):
 
 class TwitterFollower(models.Model):
     user = models.ForeignKey(
-        User,
+        TwitterUser,
         on_delete=models.CASCADE
     )
     twitter_id = models.CharField(max_length=256)
