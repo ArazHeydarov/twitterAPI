@@ -7,7 +7,7 @@ def signin(request):
         return redirect(to='index')  # direct to twitter directly
 
     if request.method == 'GET':
-        return render(request, 'signin.html')
+        return render(request, 'auth_signin.html')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -17,7 +17,7 @@ def signin(request):
             if user:
                 login(request, user)
             else:
-                return render(request, 'signin.html', {'warning_message': 'Credentials are wrong'})
+                return render(request, 'auth_signin.html', {'warning_message': 'Credentials are wrong'})
         return redirect(to='index')
 
 
