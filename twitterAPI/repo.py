@@ -29,13 +29,14 @@ class TwitterFollowersRepo:
     def __init__(self, twitter_user):
         self.twitter_user = twitter_user
 
-    def fetch_followers(self):
-        followers = TwitterFollower.objects.filter(user=self.twitter_user)
+    def fetch_followers(self, currently_following=True):
+        followers = TwitterFollower.objects.filter(user=self.twitter_user, currently_following=currently_following)
         return followers
 
     def add_followers(self, followers_list):
         for follower in followers_list:
             follower['user'] = self.twitter_user
+            follower['currently_following'] = True
             TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
                                                      twitter_user_id=follower['twitter_user_id'])
 
@@ -46,5 +47,9 @@ class TwitterFollowersRepo:
             twitter_follower.save()
         except TwitterUser.DoesNotExist:
             return
+
+    def update_followers_following_status(self):
+        TwitterFollower.objects.filter(user=self.twitter_user).update(currently_following=False)
+
 
 

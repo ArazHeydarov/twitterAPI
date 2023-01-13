@@ -56,9 +56,10 @@ class TwitterFollowerService:
         self.twitter_followers_repo = TwitterFollowersRepo(self.twitter_user)
 
     def get_followers(self):
-        return self.twitter_followers_repo.fetch_followers()
+        return self.twitter_followers_repo.fetch_followers(currently_following=True)
 
     def update_followers(self):
+        self.twitter_followers_repo.update_followers_following_status()
         followers_list = self.get_follower_list()
         followers_with_info = [self.get_followers_info(follower) for follower in followers_list]
         self.twitter_followers_repo.add_followers(followers_with_info)
