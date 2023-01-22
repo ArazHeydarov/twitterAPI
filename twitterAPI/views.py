@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
-from twitterAPI.services import TwitterAuthService, TwitterFollowerService
+from twitterAPI.services.twitter_auth_service import TwitterAuthService
+from twitterAPI.services.twitter_follower_service import TwitterFollowerService
 
 
 def index(request):
