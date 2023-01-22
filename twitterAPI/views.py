@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
@@ -6,6 +7,8 @@ from twitterAPI.services import TwitterAuthService, TwitterFollowerService
 
 
 def index(request):
+    # (test_func.s(10, 5) | second_test.s() | test_func.s(3)).delay()
+    # return HttpResponse("Hello, world. You're at the polls index.")
     if request.user.is_authenticated:
         return redirect(to='dashboard')
     return render(request, 'index.html')
@@ -19,7 +22,7 @@ def dashboard(request):
     if not auth_service.validate_oauth_authorization():
         return redirect(to='twitter_auth')
 
-    followers = TwitterFollowerService(user).get_followers()
+    followers = TwitterFollowerService(user.id).get_followers()
     return render(request, 'tw_dashboard.html', {'followers': followers})
 
 
@@ -52,7 +55,7 @@ def update_twitter_followers(request):
     if not TwitterAuthService(user).validate_oauth_authorization():
         return redirect(to='twitter_auth')
 
-    TwitterFollowerService(user).update_followers()
+    TwitterFollowerService(user.id).update_followers()
     return redirect('dashboard')
 
 
@@ -63,7 +66,7 @@ def remove_twitter_followers(request):
     if not TwitterAuthService(user).validate_oauth_authorization():
         return redirect(to='twitter_auth')
 
-    TwitterFollowerService(user).remove_followers(request.POST.dict())
+    TwitterFollowerService(user.id).remove_followers(request.POST.dict())
     return redirect('dashboard')
 
 

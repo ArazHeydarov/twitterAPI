@@ -19,6 +19,14 @@ class TwitterUserRepo:
             return None
         return twitter_user
 
+    @staticmethod
+    def fetch_twitter_user_by_id(user_id):
+        try:
+            twitter_user = TwitterUser.objects.get(user_id=user_id)
+        except TwitterUser.DoesNotExist:
+            return None
+        return twitter_user
+
     def update_or_create(self, **kwargs):
         twitter_user, created = TwitterUser.objects.update_or_create(user=self.user,
                                                                      defaults=kwargs)

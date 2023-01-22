@@ -48,10 +48,9 @@ class TwitterAuthService:
 
 
 class TwitterFollowerService:
-    def __init__(self, user: User):
-        self.user = user
-        self.twitter_user_repo = TwitterUserRepo(user)
-        self.twitter_user = self.twitter_user_repo.fetch_twitter_user()
+    def __init__(self, user_id: int):
+        self.user_id = user_id
+        self.twitter_user = TwitterUserRepo.fetch_twitter_user_by_id(self.user_id)
         self.twitter_client = TwitterClient(self.twitter_user)
         self.twitter_followers_repo = TwitterFollowersRepo(self.twitter_user)
 
