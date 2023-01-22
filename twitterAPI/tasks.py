@@ -1,12 +1,13 @@
 from celery import shared_task, Task
 import twitterAPI.services as services
+from twitterAPI.exceptions import TooManyRequestsException
 
 
 class BaseTaskWithRetry(Task):
-    autoretry_for = (FileNotFoundError,)
-    max_retries = 5
-    retry_backoff = 5
-    retry_backoff_max = 700
+    autoretry_for = (TooManyRequestsException,)
+    max_retries = 15
+    retry_backoff = 60
+    retry_backoff_max = 86400
     retry_jitter = False
 
 

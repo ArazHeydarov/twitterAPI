@@ -7,8 +7,6 @@ from twitterAPI.services import TwitterAuthService, TwitterFollowerService
 
 
 def index(request):
-    # (test_func.s(10, 5) | second_test.s() | test_func.s(3)).delay()
-    # return HttpResponse("Hello, world. You're at the polls index.")
     if request.user.is_authenticated:
         return redirect(to='dashboard')
     return render(request, 'index.html')

@@ -3,6 +3,7 @@ from twitterAPI.utils import CONSUMER_KEY, CONSUMER_SECRET, REQUEST_TOKEN_URL, B
 
 from requests_oauthlib import OAuth1Session
 from twitterAPI.models import TwitterUser
+from twitterAPI.exceptions import TooManyRequestsException
 
 
 class TwitterClient(object):
@@ -60,32 +61,34 @@ class TwitterClient(object):
             resource_owner_secret=access_token_secret,
         )
 
-        response = oauth.get(SELF_LOOKUP_URL, params=params)
-
-        if response.status_code != 200:
-            raise Exception(
-                "Request returned an error: {} {}".format(response.status_code, response.text)
-            )
-        data = response.json().get("data")
+        resp = oauth.get(SELF_LOOKUP_URL, params=params)
+        TwitterClient.check_response(resp)
+        data = resp.json().get("data")
         return data.get('id'), data.get('name')
 
     def fetch_followers_list(self):
         request_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/followers"
-        followers = self.oauth.get(request_url).json().get("data")
+        resp = self.oauth.get(request_url)
+        self.check_response(resp)
+        followers = resp.json().get("data")
         return followers
 
     def fetch_follower_basic_info(self, follower_id: str):
         scope = "profile_image_url,protected"
         params = {"user.fields": scope}
         request_url = f"https://api.twitter.com/2/users/{follower_id}"
-        data = self.oauth.get(url=request_url, params=params).json().get("data")
+        resp = self.oauth.get(url=request_url, params=params)
+        self.check_response(resp)
+        data = resp.json().get("data")
         return data['profile_image_url'], data['protected']
 
     def fetch_follower_last_tweet_date(self, follower_id: str):
         params = {'exclude': 'replies', 'max_results': 5,
                   'tweet.fields': 'created_at'}
         request_url = f"https://api.twitter.com/2/users/{follower_id}/tweets"
-        data = self.oauth.get(url=request_url, params=params).json().get("data")
+        resp = self.oauth.get(url=request_url, params=params)
+        self.check_response(resp)
+        data = resp.json().get("data")
         if data:
             last_tweet_data = data[0]
             return last_tweet_data.get('created_at')
@@ -94,7 +97,9 @@ class TwitterClient(object):
     def fetch_follower_last_like_date(self, follower_id: str):
         params = {'max_results': 10, 'tweet.fields': 'created_at'}
         request_url = f'https://api.twitter.com/2/users/{follower_id}/liked_tweets'
-        data = self.oauth.get(url=request_url, params=params).json().get("data")
+        resp = self.oauth.get(url=request_url, params=params)
+        self.check_response(resp)
+        data = resp.json().get("data")
         if data:
             last_like_data = data[0]
             return last_like_data['created_at']
@@ -106,3 +111,9 @@ class TwitterClient(object):
         unblock_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/blocking/{follower_id}"
         response = self.oauth.delete(unblock_url)
 
+    @staticmethod
+    def check_response(response):
+        if response.status_code == 429:
+            raise TooManyRequestsException(
+                "Request returned an error: {} {}".format(response.status_code, response.text)
+            )
