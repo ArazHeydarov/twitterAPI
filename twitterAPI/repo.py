@@ -41,12 +41,11 @@ class TwitterFollowersRepo:
         followers = TwitterFollower.objects.filter(user=self.twitter_user, currently_following=currently_following)
         return followers
 
-    def add_followers(self, followers_list):
-        for follower in followers_list:
-            follower['user'] = self.twitter_user
-            follower['currently_following'] = True
-            TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
-                                                     twitter_user_id=follower['twitter_user_id'])
+    def add_follower(self, follower):
+        follower['user'] = self.twitter_user
+        follower['currently_following'] = True
+        TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
+                                                 twitter_user_id=follower['twitter_user_id'])
 
     def remove_follower(self, follower_id):
         try:

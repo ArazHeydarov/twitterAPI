@@ -1,7 +1,7 @@
 from twitterAPI.clients import TwitterClient
 from twitterAPI.repo import TwitterUserRepo, TwitterFollowersRepo
-from twitterAPI.models import User
 from twitterAPI.utils import process_profile_picture, get_follower_ids_to_remove
+import twitterAPI.tasks as tasks
 
 
 class TwitterAuthService:
@@ -59,27 +59,35 @@ class TwitterFollowerService:
 
     def update_followers(self):
         self.twitter_followers_repo.update_followers_following_status()
-        followers_list = self.get_follower_list()
-        followers_with_info = [self.get_followers_info(follower) for follower in followers_list]
-        self.twitter_followers_repo.add_followers(followers_with_info)
-        return followers_list
+        tasks.fetch_follower_ids.delay(self.user_id)
 
-    def get_follower_list(self):
-        return self.twitter_client.fetch_followers_list()
+    def fetch_follower_list(self):
+        follower_list = self.twitter_client.fetch_followers_list()
+        for follower in follower_list:
+            tasks.fetch_follower_basic_info.delay(self.user_id, follower)
 
-    def get_followers_info(self, follower: dict):
-        pp_url, protected = self.twitter_client.fetch_follower_basic_info(follower['id'])
+    def fetch_follower_basic_info(self, follower_info: dict):
+        pp_url, protected = self.twitter_client.fetch_follower_basic_info(follower_info['id'])
         pp_url = process_profile_picture(pp_url)
-        follower_with_info = {'twitter_user_id': follower['id'],
-                              'name': follower['name'],
-                              'username': follower['username'],
+        follower_with_info = {'twitter_user_id': follower_info['id'],
+                              'name': follower_info['name'],
+                              'username': follower_info['username'],
                               'pp_url': pp_url,
                               'protected': protected}
+        if not protected:
+            tasks.fetch_follower_last_like_date.delay(self.user_id, follower_with_info)
+            tasks.fetch_follower_last_tweet_date.delay(self.user_id, follower_with_info)
+        self.twitter_followers_repo.add_follower(follower_with_info)
 
-        if not follower_with_info['protected']:
-            follower_with_info['last_like_dt'] = self.twitter_client.fetch_follower_last_like_date(follower['id'])
-            follower_with_info['last_tweet_dt'] = self.twitter_client.fetch_follower_last_tweet_date(follower['id'])
-        return follower_with_info
+    def fetch_follower_last_like_date(self, follower_info: dict):
+        follower_info['last_like_dt'] = \
+            self.twitter_client.fetch_follower_last_like_date(follower_info['twitter_user_id'])
+        self.twitter_followers_repo.add_follower(follower_info)
+
+    def fetch_follower_last_tweet_date(self, follower_info: dict):
+        follower_info['last_tweet_dt'] = \
+            self.twitter_client.fetch_follower_last_tweet_date(follower_info['twitter_user_id'])
+        self.twitter_followers_repo.add_follower(follower_info)
 
     def remove_followers(self, params: dict):
         follower_ids_to_remove = get_follower_ids_to_remove(params)
