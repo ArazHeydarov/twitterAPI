@@ -1,9 +1,10 @@
+import math
 from twitterAPI.repos.twitter_user_repo import TwitterUserRepo
 from twitterAPI.repos.twitter_follower_repo import TwitterFollowersRepo
 from twitterAPI.clients.twitter_client import TwitterClient
-
 import twitterAPI.tasks as tasks
 from twitterAPI.utils import process_profile_picture, get_follower_ids_to_remove
+from twitterAPI.settings import OBJECTS_PER_PAGE
 
 
 class TwitterFollowerService:
@@ -13,8 +14,37 @@ class TwitterFollowerService:
         self.twitter_client = TwitterClient(self.twitter_user)
         self.twitter_followers_repo = TwitterFollowersRepo(self.twitter_user)
 
-    def get_followers(self):
-        return self.twitter_followers_repo.fetch_followers(currently_following=True)
+    def get_followers(self, request_params: dict):
+        filters = self._formulate_filters(request_params)
+        order = self._formulate_order(request_params)
+        offset = (int(request_params.get('page', 1)) - 1) * OBJECTS_PER_PAGE
+        followers, follower_count = self.twitter_followers_repo.fetch_followers(currently_following=True,
+                                                                                filters=filters,
+                                                                                order=order, offset=offset)
+        page_numbers = [index for index in range(2, math.ceil(follower_count / OBJECTS_PER_PAGE) + 1)]
+        return followers, page_numbers
+
+    @staticmethod
+    def _formulate_filters(request_params: dict):
+        filters = {}
+        if request_params.get('last_like_dt'):
+            filters['last_like_dt__lte'] = request_params.get('last_like_dt')
+        if request_params.get('last_tweet_dt'):
+            filters['last_tweet_dt__lte'] = request_params.get('last_tweet_dt')
+        return filters
+
+    @staticmethod
+    def _formulate_order(request_params: dict):
+        order = []
+        if request_params.get('last_like_dt_sort_asc') == 'true':
+            order.append('last_like_dt')
+        else:
+            order.append('-last_like_dt')
+        if request_params.get('last_tweet_dt_sort_asc') == 'true':
+            order.append('last_tweet_dt')
+        else:
+            order.append('-last_tweet_dt')
+        return order
 
     def update_followers(self):
         self.twitter_followers_repo.update_followers_following_status()

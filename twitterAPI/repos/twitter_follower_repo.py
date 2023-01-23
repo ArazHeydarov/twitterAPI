@@ -1,13 +1,21 @@
 from twitterAPI.models import TwitterFollower, TwitterUser
+from twitterAPI.settings import OBJECTS_PER_PAGE
 
 
 class TwitterFollowersRepo:
     def __init__(self, twitter_user):
         self.twitter_user = twitter_user
 
-    def fetch_followers(self, currently_following=True):
+    def fetch_followers(self, currently_following=True, filters=None, order=None,
+                        offset=0):
         followers = TwitterFollower.objects.filter(user=self.twitter_user, currently_following=currently_following)
-        return followers
+        if filters:
+            followers = followers.filter(**filters)
+        if order:
+            followers = followers.order_by(*order)
+        follower_count = followers.count()
+        followers = followers[offset: offset + OBJECTS_PER_PAGE]
+        return followers, follower_count
 
     def add_follower(self, follower):
         follower['user'] = self.twitter_user

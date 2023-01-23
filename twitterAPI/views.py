@@ -20,9 +20,10 @@ def dashboard(request):
 
     if not auth_service.validate_oauth_authorization():
         return redirect(to='twitter_auth')
-
-    followers = TwitterFollowerService(user.id).get_followers()
-    return render(request, 'tw_dashboard.html', {'followers': followers})
+    request_params = request.GET
+    followers, page_numbers = TwitterFollowerService(user.id).get_followers(request_params)
+    return render(request, 'tw_dashboard.html', {'followers': followers, 'page_numbers': page_numbers,
+                                                 'request_params': request_params})
 
 
 @login_required()
