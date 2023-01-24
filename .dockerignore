@@ -1,0 +1,6 @@
+.idea
+venv
+linux_venv
+.env
+/logs
+compose.yml

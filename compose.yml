@@ -1,0 +1,45 @@
+version: "3"
+services:
+  web:
+    image: arazheydarov/twitterapiapp:v1
+    build: .
+    container_name: backend
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - /home/${USER}/logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_tw
+    env_file: .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - /home/${USER}/postgresdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_tw
+    ports:
+      - "6379:6379"
+    volumes:
+      - /home/${USER}/redis-data:/data
+
+  nginx:
+    image: nginx:1.23-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+        - /home/${USER}/nginx/conf.d:/etc/nginx/conf.d
+        - /home/${USER}/nginx/certs:/etc/nginx/certs
+        - /home/${USER}/nginx/logs:/var/log/nginx
+        - /home/${USER}/nginx/html:/usr/share/nginx/html
+    depends_on:
+      - web
