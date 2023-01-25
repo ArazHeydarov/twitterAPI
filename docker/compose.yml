@@ -2,9 +2,13 @@ version: "3"
 services:
   web:
     image: arazheydarov/twitterapiapp:v1
-    build: .
+    build:
+        context: ..
+        dockerfile: docker\Dockerfile
     container_name: backend
-    env_file: .env
+    env_file: ../.env
+    command:
+      - "django"
     ports:
       - "8000:8000"
     volumes:
@@ -13,12 +17,24 @@ services:
       - postgres
       - redis
 
+  celery:
+    image: arazheydarov/twitterapiapp:v1
+    build:
+        context: ..
+        dockerfile: docker\Dockerfile
+    container_name: celery
+    env_file: ../.env
+    command:
+      - "celery"
+    depends_on:
+      - web
+
   postgres:
     image: postgres:15-alpine
     container_name: postgres_tw
-    env_file: .env
+    env_file: ../.env
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - /home/${USER}/postgresdata:/var/lib/postgresql/data
 

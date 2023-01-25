@@ -1,6 +1,6 @@
 .idea
 venv
 linux_venv
-.env
+*.env
 /logs
-compose.yml
+docker/compose.yml

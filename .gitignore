@@ -1,5 +1,5 @@
 .idea
-.env
+*.env
 /twitterAPI/migrations
 /authentication/migrations
 /linux_venv
