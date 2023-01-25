@@ -1,5 +1,5 @@
 from celery import shared_task, Task
-import twitterAPI.services as services
+import twitterAPI.services.twitter_follower_service as services
 from twitterAPI.exceptions import TooManyRequestsException
 
 
