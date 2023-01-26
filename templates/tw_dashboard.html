@@ -16,7 +16,7 @@
     </script>
 
 
-    <h2 style="margin-top: 20px; margin-bottom: 5px">Currently you have {{ followers.count }} follower</h2>
+    <h2 style="margin-top: 20px; margin-bottom: 5px">Currently you have {{ all_followers_count }} follower</h2>
     <h2 style="margin: 0">If it's not the case please click the refresh your followers button below</h2>
     <h3 style="margin-top: 0; margin-bottom: 20px">This process may take a while</h3>
     <a class="btn btn-primary btn-lg" style="width: 150px; height:50px; padding-top: 15px;" href="{% url 'twitter_followers_update' %}" role="button">

@@ -22,12 +22,13 @@ class TwitterFollowerService:
         filters = self._formulate_filters(request_params)
         order = self._formulate_order(request_params)
         offset = (int(request_params.get('page', 1)) - 1) * OBJECTS_PER_PAGE
+        all_followers_count = self.twitter_followers_repo.fetch_followers_count(currently_following=True)
         followers, follower_count = self.twitter_followers_repo.fetch_followers(currently_following=True,
                                                                                 filters=filters,
                                                                                 order=order, offset=offset)
         page_numbers = [index for index in range(2, math.ceil(follower_count / OBJECTS_PER_PAGE) + 1)]
         logger.info(f'Fetched {follower_count} followers for user {self.user_id}')
-        return followers, page_numbers,
+        return followers, page_numbers, all_followers_count
 
     @staticmethod
     def _formulate_filters(request_params: dict):
