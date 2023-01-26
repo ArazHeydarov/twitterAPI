@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv('DEBUG')))
 ALLOWED_HOSTS = ['*']
-OBJECTS_PER_PAGE = 8
+OBJECTS_PER_PAGE = 24
 # Application definition
 
 INSTALLED_APPS = [
@@ -86,10 +86,36 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s - %(levelname)s] [%(module)s:%(lineno)s] | %(message)s'
+        }
+    },
+    'handlers': {
+        'service_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': './logs/services.log',
+            'maxBytes': 1024 * 1024 * 100,  # 100 mb
+        }
+    },
+    'loggers': {
+        'services': {
+            'level': 'INFO',
+            'handlers': ['service_handler']
+        },
+    }
+}
+
 # Celery settings
 CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST')}:6379"
 CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST')}:6379"
-
+CELERYD_LOG_FILE = './logs/celery.log'
+CELERYD_LOG_LEVEL = 'INFO'
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 

@@ -8,14 +8,15 @@ class TwitterFollowersRepo:
 
     def fetch_followers(self, currently_following=True, filters=None, order=None,
                         offset=0):
-        followers = TwitterFollower.objects.filter(user=self.twitter_user, currently_following=currently_following)
+        all_followers = TwitterFollower.objects.filter(user=self.twitter_user)
+        followers = all_followers.filter(user=self.twitter_user, currently_following=currently_following)
         if filters:
             followers = followers.filter(**filters)
         if order:
             followers = followers.order_by(*order)
         follower_count = followers.count()
         followers = followers[offset: offset + OBJECTS_PER_PAGE]
-        return followers, follower_count
+        return followers, follower_count, all_followers.count()
 
     def add_follower(self, follower):
         follower['user'] = self.twitter_user

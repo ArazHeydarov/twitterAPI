@@ -24,6 +24,8 @@ services:
         dockerfile: docker\Dockerfile
     container_name: celery
     env_file: ../.env
+    volumes:
+      - /home/${USER}/logs:/app/logs
     command:
       - "celery"
     depends_on:

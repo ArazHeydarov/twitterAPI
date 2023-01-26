@@ -1,5 +1,8 @@
+import logging
 from twitterAPI.clients.twitter_client import TwitterClient
 from twitterAPI.repos.twitter_user_repo import TwitterUserRepo
+
+logger = logging.getLogger('services')
 
 
 class TwitterAuthService:
@@ -8,6 +11,7 @@ class TwitterAuthService:
         self.twitter_user_repo = TwitterUserRepo(user)
 
     def get_authorization_url(self):
+        logger.info(f'Fetching authorization url for user {self.user.username}')
         authorization_url, resource_owner_key, resource_owner_secret = TwitterClient.fetch_authorization_params()
         self.save_params(resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret)
         return authorization_url
@@ -36,6 +40,7 @@ class TwitterAuthService:
         return False
 
     def verify_oauth_token(self, oauth_verifier):
+        logger.info(f'Verifying oauth token for user {self.user.username}')
         twitter_user = self.twitter_user_repo.fetch_twitter_user()
         access_token, access_token_secret = TwitterClient.fetch_authorization_access_params(
             twitter_user.resource_owner_key, twitter_user.resource_owner_secret, oauth_verifier
@@ -43,3 +48,5 @@ class TwitterAuthService:
         twitter_id, twitter_name = TwitterClient.fetch_twitter_user_info(access_token, access_token_secret)
         self.save_params(access_token=access_token, access_token_secret=access_token_secret,
                          twitter_user_id=twitter_id, twitter_user_name=twitter_name)
+        logger.info(f'Verified oauth token for user {self.user.username} with twitter user id '
+                    f'{twitter_id} and name {twitter_name})')

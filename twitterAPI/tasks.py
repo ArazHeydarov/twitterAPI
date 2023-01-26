@@ -5,10 +5,10 @@ from twitterAPI.exceptions import TooManyRequestsException
 
 class BaseTaskWithRetry(Task):
     autoretry_for = (TooManyRequestsException,)
-    max_retries = 15
-    retry_backoff = 60
+    max_retries = 20
+    retry_backoff = 1800
     retry_backoff_max = 86400
-    retry_jitter = False
+    retry_jitter = True
 
 
 @shared_task(base=BaseTaskWithRetry)
