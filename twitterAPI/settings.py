@@ -86,31 +86,6 @@ DATABASES = {
     }
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {
-            'format': '[%(asctime)s - %(levelname)s] [%(module)s:%(funcName)s] | %(message)s'
-        }
-    },
-    'handlers': {
-        'service_handler': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
-            'filename': './logs/services.log',
-            'maxBytes': 1024 * 1024 * 100,  # 100 mb
-        }
-    },
-    'loggers': {
-        'services': {
-            'level': 'INFO',
-            'handlers': ['service_handler'],
-            'propagate': False,
-        },
-    }
-}
 
 # Celery settings
 CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST')}:6379"

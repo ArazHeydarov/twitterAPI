@@ -7,7 +7,13 @@ import twitterAPI.tasks as tasks
 from twitterAPI.utils import process_profile_picture, get_follower_ids_to_remove
 from twitterAPI.settings import OBJECTS_PER_PAGE
 
-logger = logging.getLogger('services')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('[%(asctime)s - %(levelname)s] [%(module)s:%(funcName)s] | %(message)s')
+handler = logging.FileHandler('./logs/services.log')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.propagate = False
 
 
 class TwitterFollowerService:
