@@ -91,7 +91,7 @@ LOGGING = {
     'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
-            'format': '[%(asctime)s - %(levelname)s] [%(module)s:%(lineno)s] | %(message)s'
+            'format': '[%(asctime)s - %(levelname)s] [%(module)s:%(funcName)s] | %(message)s'
         }
     },
     'handlers': {
@@ -106,7 +106,8 @@ LOGGING = {
     'loggers': {
         'services': {
             'level': 'INFO',
-            'handlers': ['service_handler']
+            'handlers': ['service_handler'],
+            'propagate': False,
         },
     }
 }
@@ -114,8 +115,6 @@ LOGGING = {
 # Celery settings
 CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST')}:6379"
 CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST')}:6379"
-CELERYD_LOG_FILE = './logs/celery.log'
-CELERYD_LOG_LEVEL = 'INFO'
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
