@@ -116,9 +116,11 @@ class TwitterClient(object):
 
     def remove_follower(self, follower_id: str):
         block_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/blocking"
-        response = self.oauth.post(block_url, json={"target_user_id": f"{follower_id}"})
+        resp = self.oauth.post(block_url, json={"target_user_id": f"{follower_id}"})
+        self.check_response(resp)
         unblock_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/blocking/{follower_id}"
-        response = self.oauth.delete(unblock_url)
+        resp = self.oauth.delete(unblock_url)
+        self.check_response(resp)
 
     @staticmethod
     def check_response(response):

@@ -104,6 +104,9 @@ class TwitterFollowerService:
     def remove_followers(self, params: dict):
         follower_ids_to_remove = get_follower_ids_to_remove(params)
         for follower_id in follower_ids_to_remove:
-            self.twitter_client.remove_follower(follower_id)
-            self.twitter_followers_repo.remove_follower(follower_id)
-        logger.info(f'Removed {len(follower_ids_to_remove)} followers for user {self.user_id}')
+            tasks.remove_follower.delay(self.user_id, follower_id)
+
+    def remove_follower(self, follower_id):
+        self.twitter_client.remove_follower(follower_id)
+        self.twitter_followers_repo.remove_follower(follower_id)
+        logger.info(f'Removed {len(follower_id)} followers for user {self.user_id}')

@@ -33,7 +33,7 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    container_name: postgres_tw
+    container_name: postgres
     env_file: ../.env
     ports:
       - "5432:5432"
@@ -42,7 +42,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis_tw
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:

@@ -29,3 +29,8 @@ def fetch_follower_last_like_date(user_id, follower_info):
 @shared_task(base=BaseTaskWithRetry)
 def fetch_follower_last_tweet_date(user_id, follower_info):
     services.TwitterFollowerService(user_id).fetch_follower_last_tweet_date(follower_info)
+
+
+@shared_task(base=BaseTaskWithRetry)
+def remove_follower(user_id, follower_id):
+    services.TwitterFollowerService(user_id).remove_follower(follower_id)
