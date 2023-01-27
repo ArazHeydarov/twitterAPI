@@ -19,7 +19,6 @@ class TwitterFollowersRepo:
 
     def add_follower(self, follower):
         follower['user'] = self.twitter_user
-        follower['currently_following'] = True
         TwitterFollower.objects.update_or_create(defaults=follower, user=self.twitter_user,
                                                  twitter_user_id=follower['twitter_user_id'])
 

@@ -18,7 +18,7 @@ def fetch_follower_ids(user_id):
 
 @shared_task(base=BaseTaskWithRetry)
 def fetch_follower_basic_info(user_id, follower_info):
-    services.TwitterFollowerService(user_id).fetch_follower_basic_info(follower_info)
+    services.TwitterFollowerService(user_id).fetch_save_follower_activity_info(follower_info)
 
 
 @shared_task(base=BaseTaskWithRetry)

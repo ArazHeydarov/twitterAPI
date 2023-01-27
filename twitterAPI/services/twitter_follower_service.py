@@ -10,7 +10,7 @@ from twitterAPI.settings import OBJECTS_PER_PAGE
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s - %(levelname)s] [%(module)s:%(funcName)s] | %(message)s')
-handler = logging.FileHandler('./logs/services.log')
+handler = logging.FileHandler('./logs/services.log', mode='a', encoding='utf-8')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
@@ -69,16 +69,20 @@ class TwitterFollowerService:
         for follower in follower_list:
             tasks.fetch_follower_basic_info.delay(self.user_id, follower)
 
-    def fetch_follower_basic_info(self, follower_info: dict):
-        logger.info(f'Fetching follower named {follower_info["name"]} basic info for user {self.user_id}')
-        pp_url, protected = self.twitter_client.fetch_follower_basic_info(follower_info['id'])
-        pp_url = process_profile_picture(pp_url)
+    def fetch_save_follower_activity_info(self, follower_info: dict):
+        logger.info(f'Fetching follower named {follower_info["name"].encode("utf-8")} '
+                    f'basic info for user {self.user_id}')
         follower_with_info = {'twitter_user_id': follower_info['id'],
-                              'name': follower_info['name'],
-                              'username': follower_info['username'],
-                              'pp_url': pp_url,
-                              'protected': protected}
-        if not protected:
+                              'name': follower_info.get('name'),
+                              'username': follower_info.get('username'),
+                              'pp_url': process_profile_picture(follower_info.get('profile_image_url')),
+                              'protected': follower_info.get('protected'),
+                              'verified': follower_info.get('verified'),
+                              'location': follower_info.get('location'),
+                              'description': follower_info.get('description'),
+                              'currently_following': True,
+                              'profile_created_at': follower_info.get('created_at')}
+        if not follower_with_info['protected']:
             tasks.fetch_follower_last_like_date.delay(self.user_id, follower_with_info)
             tasks.fetch_follower_last_tweet_date.delay(self.user_id, follower_with_info)
         self.twitter_followers_repo.add_follower(follower_with_info)

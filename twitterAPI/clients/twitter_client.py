@@ -67,10 +67,19 @@ class TwitterClient(object):
         return data.get('id'), data.get('name')
 
     def fetch_followers_list(self):
-        request_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/followers"
-        resp = self.oauth.get(request_url)
-        self.check_response(resp)
-        followers = resp.json().get("data")
+        followers = []
+        params = {'max_results': 1000,
+                  'user.fields': 'created_at,description,id,location,name,profile_image_url,'
+                                 'protected,username,verified,verified_type,withheld'}
+        while True:
+            request_url = f"https://api.twitter.com/2/users/{self.twitter_user.twitter_user_id}/followers"
+            resp = self.oauth.get(request_url, params=params)
+            self.check_response(resp)
+            followers += resp.json().get("data")
+            if 'next_token' in resp.json().get("meta"):
+                params['pagination_token'] = resp.json().get("meta").get('next_token')
+            else:
+                break
         return followers
 
     def fetch_follower_basic_info(self, follower_id: str):
